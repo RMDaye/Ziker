@@ -2,7 +2,7 @@
 2- French (Français)
 
 
-1  -  <ENGLISH>
+1  -  ENGLISH
 
 🎧 Ziker — Project Overview
 I bought this magnificent pair of headphones back in 2015—a design so unique and captivating!
@@ -142,7 +142,7 @@ Timing: Crucial 300ms delay after handshake before sending commands.
 
 
 
-2 -  <FRENCH>
+2 -  FRENCH
 
 # 🎧 Ziker — Présentation du projet
 
