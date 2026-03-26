@@ -1,4 +1,8 @@
-<ENGLISH>
+1- English (Anglais)
+2- French (Français)
+
+
+1  -  <ENGLISH>
 
 🎧 Ziker — Project Overview
 I bought this magnificent pair of headphones back in 2015—a design so unique and captivating!
@@ -134,7 +138,11 @@ Concatenated Messages: Accumulate bytes, use LEN_HI/LO to split messages, parse 
 
 Timing: Crucial 300ms delay after handshake before sending commands.
 
-<FRENCH>
+
+
+
+
+2 -  <FRENCH>
 
 # 🎧 Ziker — Présentation du projet
 
