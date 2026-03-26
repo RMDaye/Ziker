@@ -1,6 +1,6 @@
 <ENGLISH>
 
-🎧 Zikker — Project Overview
+🎧 Ziker — Project Overview
 I bought this magnificent pair of headphones back in 2015—a design so unique and captivating!
 I found them again a few years later, after unfortunately having to abandon them because I no longer had a phone compatible with the legacy app. I absolutely wanted to use them with my current primary device.
 
@@ -9,12 +9,12 @@ So, in 2025—12 years later—I decided to use my technical knowledge and AI to
 💡 The Concept
 To start, I needed a name. It had to be distinct enough not to infringe on Parrot's identity; therefore, I couldn't include "Parrot" or "Zik" in the name.
 
-I chose Zikker, a contraction of "Zik" and "er" because it’s short, simple, and effective.
+I chose Ziker, a contraction of "Zik" and "er" because it’s short, simple, and effective.
 
 As for the logo, it's very straightforward: a profile view of the Parrot Zik 3. It represents the concept well without using the exact design for obvious legal reasons... The Bluetooth logo and a double circle evoke the synchronization between the app and the headset.
 
 🎯 Project Goals
-Zikker is an application for modern Android phones (Android 7 to 16) designed to revive the Parrot Zik 3 (and Zik 2).
+Ziker is an application for modern Android phones (Android 7 to 16) designed to revive the Parrot Zik 3 (and Zik 2).
 The goal is to recreate the original application almost in its entirety, re-implementing as many hardware-supported features as possible (EQ, ANC, Concert Hall, presets, sensors, system settings), with a behavior as close to the original as possible.
 
 ✅ What has been achieved:
@@ -136,7 +136,7 @@ Timing: Crucial 300ms delay after handshake before sending commands.
 
 <FRENCH>
 
-# 🎧 Zikker — Présentation du projet
+# 🎧 Ziker — Présentation du projet
 
 J'avais acheté en 2015 ce magnifique casque, au design si particulier et passionnant !
 Je l'ai retrouvé quelques années plus tard, après l'avoir malheureusement abandonné car je n'avais plus de téléphone compatible avec l'ancienne application et je voulais absolument m'en servir avec mon téléphone principal.
@@ -151,7 +151,7 @@ Je l'ai appelé **Ziker**, une contraction de "Zik" et le "er" parce que je trou
 Pour le logo, c'est très simple : le Parrot Zik 3 dessiné de profil. Il offre une bonne représentation de l'idée sans en avoir le design exact pour des raisons juridiques évidentes... Le logo Bluetooth et un double cercle invoquent la synchronisation entre l'app et le casque.
 
 ## 🎯 Objectifs du projet
-Zikker est une application pour téléphones Android récents d'Android 7 à 16 dont le but est de redonner vie au Parrot Zik 3 (et 2). 
+Ziker est une application pour téléphones Android récents d'Android 7 à 16 dont le but est de redonner vie au Parrot Zik 3 (et 2). 
 Le but est de retrouver l’application d’origine quasiment dans son intégralité, en réimplémentant le maximum de fonctions réellement supportées par le casque (**EQ, ANC, Concert Hall, presets, capteurs, réglages système**), avec un comportement au plus proche de l’original.
 
 ### ✅ Ce qui a été réalisé :
