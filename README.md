@@ -1,3 +1,7 @@
+[![Origine](https://img.shields.io/badge/Made%20in-🇫🇷%20France-blue?style=for-the-badge&logo=icloud&logoColor=white)](https://github.com/rmdaye/ziker)
+[![Version Android](https://img.shields.io/badge/Supports-Android%207%20to%2016-green?style=for-the-badge&logo=android&logoColor=white)](https://github.com/rmdaye/ziker)
+[![Licence](https://img.shields.io/badge/License-GPLv3-purple?style=for-the-badge)](LICENSE)
+
 1- English (Anglais)
 2- French (Français)
 
