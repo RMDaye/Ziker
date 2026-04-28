@@ -192,10 +192,10 @@ private val LocalDemoMode = compositionLocalOf { false }
 private data class ZikTab(val icon: ImageVector, val label: String)
 private val TABS = listOf(
     ZikTab(Icons.Default.Dashboard,  "Dashboard"),
-    ZikTab(Icons.Default.VolumeUp,   "Bruit"),
+    ZikTab(Icons.Default.VolumeUp,   "Noise"),
     ZikTab(Icons.Default.Equalizer,  "EQ"),
     ZikTab(Icons.Default.MusicNote,  "Concert"),
-    ZikTab(Icons.Default.Settings,   "Réglages"),
+    ZikTab(Icons.Default.Settings,   "Settings"),
 )
 
 // ─── NestedScrollConnection qui consomme le scroll horizontal ──────────────────
@@ -330,7 +330,7 @@ private fun DemoSlideshowScreen(onExitDemo: () -> Unit) {
             .fillMaxSize()
             .background(t.background)
     ) {
-        ParrotTopBar(title = "Mode Démo")
+        ParrotTopBar(title = "Demo Mode")
 
         Box(
             modifier = Modifier
@@ -344,7 +344,7 @@ private fun DemoSlideshowScreen(onExitDemo: () -> Unit) {
             ) { page ->
                 Image(
                     painter = painterResource(id = slides[page]),
-                    contentDescription = "Capture démonstration ${page + 1}",
+                    contentDescription = "Demo screenshot ${page + 1}",
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 10.dp, vertical = 8.dp)
@@ -386,7 +386,7 @@ private fun DemoSlideshowScreen(onExitDemo: () -> Unit) {
             Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color(0xFF1A1A1A))
             Spacer(Modifier.width(8.dp))
             Text(
-                text = "Quitter mode démo",
+                text = "Exit demo mode",
                 color = Color(0xFF1A1A1A),
                 fontFamily = RobotoCondensed,
                 fontWeight = FontWeight.Bold
@@ -433,10 +433,10 @@ private fun PermissionScreen(onRequest: () -> Unit) {
     ) {
         Icon(Icons.Default.Bluetooth, null, tint = t.accent, modifier = Modifier.size(64.dp))
         Spacer(Modifier.height(24.dp))
-        Text("Permissions Bluetooth requises pour détecter votre Parrot Zik.",
+        Text("Bluetooth permissions required to detect your Parrot Zik.",
             color = t.textPrimary, fontSize = 15.sp, textAlign = TextAlign.Center)
         Spacer(Modifier.height(32.dp))
-        ZikButton("Accorder les permissions", onClick = onRequest)
+        ZikButton("Grant permissions", onClick = onRequest)
     }
 }
 
@@ -448,13 +448,13 @@ private fun BluetoothOffScreen(onEnable: () -> Unit) {
         verticalArrangement = Arrangement.Center) {
         Icon(Icons.Default.BluetoothDisabled, null, tint = t.accent, modifier = Modifier.size(56.dp))
         Spacer(Modifier.height(20.dp))
-        Text("Bluetooth désactivé", color = t.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        Text("Bluetooth disabled", color = t.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(8.dp))
-        Text("L'app se connectera automatiquement dès qu'il sera activé.",
+        Text("The app will connect automatically once it is enabled.",
             color = t.textSecondary, fontSize = 12.sp, textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 40.dp))
         Spacer(Modifier.height(28.dp))
-        ZikButton("Activer le Bluetooth", icon = Icons.Default.Bluetooth, onClick = onEnable,
+        ZikButton("Enable Bluetooth", icon = Icons.Default.Bluetooth, onClick = onEnable,
             modifier = Modifier.padding(horizontal = 48.dp).fillMaxWidth().height(48.dp))
     }
 }
@@ -481,7 +481,7 @@ private fun DevicePickerScreen(
         when {
             targetDeviceAddress != null && latestLogMessage != null -> latestLogMessage
             status.isNotBlank() -> status
-            else -> "En attente d'un casque…"
+            else -> "Waiting for a headset…"
         }
     }
 
@@ -569,7 +569,7 @@ private fun DevicePickerScreen(
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(
-                        text = "Journal connexion",
+                        text = "Connection log",
                         color = logLabelColor,
                         fontSize = 10.sp,
                         fontFamily = RobotoCondensed,
@@ -632,7 +632,7 @@ private fun DevicePickerContent(
             modifier = Modifier.padding(bottom = 4.dp)) {
             Icon(Icons.Default.Bluetooth, null, tint = t.accent, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(8.dp))
-            Text("Appareils Parrot Zik", color = t.textPrimary, fontSize = 16.sp,
+            Text("Parrot Zik Devices", color = t.textPrimary, fontSize = 16.sp,
                 fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
             if (isScanning && connectingAddress == null) {
                 CircularProgressIndicator(color = t.accent,
@@ -643,7 +643,7 @@ private fun DevicePickerContent(
 
         // Appareils appairés (connexion automatique + tap manuel)
         if (bondedDevices.isNotEmpty()) {
-            Text("DÉJÀ APPAIRÉS", color = t.textSecondary, fontSize = 10.sp, letterSpacing = 1.2.sp)
+            Text("ALREADY PAIRED", color = t.textSecondary, fontSize = 10.sp, letterSpacing = 1.2.sp)
             Spacer(Modifier.height(8.dp))
             bondedDevices.forEach { device ->
                 DeviceRow(device = device, onClick = { onDeviceTap(device) },
@@ -658,7 +658,7 @@ private fun DevicePickerContent(
         }
         if (newDevices.isNotEmpty()) {
             Spacer(Modifier.height(16.dp))
-            Text("DÉCOUVERTS", color = t.textSecondary, fontSize = 10.sp, letterSpacing = 1.2.sp)
+            Text("DISCOVERED", color = t.textSecondary, fontSize = 10.sp, letterSpacing = 1.2.sp)
             Spacer(Modifier.height(8.dp))
             newDevices.forEach { device ->
                 DeviceRow(device = device, onClick = { onDeviceTap(device) },
@@ -670,7 +670,7 @@ private fun DevicePickerContent(
         if (bondedDevices.isEmpty() && scannedDevices.isEmpty()) {
             Spacer(Modifier.height(16.dp))
             Text(
-                if (isScanning) "Recherche en cours…" else "Aucun appareil Zik trouvé. Vérifiez que le casque est allumé.",
+                if (isScanning) "Searching…" else "No Zik device found. Check that the headset is on.",
                 color = t.textSecondary, fontSize = 13.sp, textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
             )
@@ -701,7 +701,7 @@ private fun DevicePickerContent(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    "Mode Démo",
+                    "Demo Mode",
                     color = t2.accent,
                     fontWeight = FontWeight.Medium,
                     fontSize = 13.sp,
@@ -1074,7 +1074,7 @@ private fun ParrotPresetBar(onAddPreset: () -> Unit = {}) {
                 fontWeight = FontWeight.Medium
             )
             Text(
-                "Pas de preset sélectionné",
+                "No preset selected",
                 color = t.textPrimary, fontSize = 14.sp,
                 fontFamily = RobotoCondensed, fontWeight = FontWeight.Bold,
                 maxLines = 1, overflow = TextOverflow.Ellipsis
@@ -1171,10 +1171,10 @@ private fun PageDashboard(
             }
             Text(
                 when {
-                    isCharging && (trackTitle.isNullOrBlank()) -> "\u26A1 En charge"
+                    isCharging && (trackTitle.isNullOrBlank()) -> "\u26A1 Charging"
                     isCharging -> "\u26A1 $trackTitle"
                     !trackTitle.isNullOrBlank() -> trackTitle
-                    else -> "En attente de lecture"
+                    else -> "Waiting for playback"
                 } + if (firmwareVersion.isNotBlank()) "  \u2022 FW $firmwareVersion" else "",
                 color = t.textPrimary, fontSize = 13.sp, fontFamily = RobotoCondensed,
                 fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -1203,13 +1203,13 @@ private fun PageDashboard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             ParrotTabButton(
-                label = "Contrôle\ndu bruit", icon = Icons.Default.VolumeUp,
+                label = "Noise\nControl", icon = Icons.Default.VolumeUp,
                 active = hasActiveAnc, onToggle = onToggleBruit,
                 onNavigate = { onNavigate(1) },
                 modifier = Modifier.weight(1f)
             )
             ParrotTabButton(
-                label = "Egaliseur", icon = Icons.Default.Equalizer,
+                label = "Equalizer", icon = Icons.Default.Equalizer,
                 active = hasActiveEq, onToggle = onToggleEq,
                 onNavigate = { onNavigate(2) },
                 modifier = Modifier.weight(1f)
@@ -1502,11 +1502,11 @@ private data class AncStep(
     val icon : ImageVector
 )
 private val ANC_STEPS = listOf(
-    AncStep(ZikProtocol.NoiseControlMode.ANC,        "ANC MAX",     "Annulation active (\u221230 dB)",     Icons.Default.HearingDisabled),
-    AncStep(ZikProtocol.NoiseControlMode.ANC_LOW,    "ANC",         "R\u00e9duction standard (\u221225 dB)",  Icons.Default.VolumeDown),
-    AncStep(ZikProtocol.NoiseControlMode.OFF,        "PASSIF / OFF","Isolation passive (\u221210 dB)",     Icons.Default.Hearing),
-    AncStep(ZikProtocol.NoiseControlMode.STREET_LOW, "STREET LOW",  "Transparence l\u00e9g\u00e8re (\u22125 dB)",   Icons.Default.VolumeUp),
-    AncStep(ZikProtocol.NoiseControlMode.STREET,     "STREET MAX",  "Transparence totale (0 dB)",        Icons.Default.GraphicEq),
+    AncStep(ZikProtocol.NoiseControlMode.ANC,        "ANC MAX",     "Active cancellation (\u221230 dB)",     Icons.Default.HearingDisabled),
+    AncStep(ZikProtocol.NoiseControlMode.ANC_LOW,    "ANC",         "Standard reduction (\u221225 dB)",  Icons.Default.VolumeDown),
+    AncStep(ZikProtocol.NoiseControlMode.OFF,        "PASSIVE / OFF","Passive isolation (\u221210 dB)",     Icons.Default.Hearing),
+    AncStep(ZikProtocol.NoiseControlMode.STREET_LOW, "STREET LOW",  "Light transparency (\u22125 dB)",   Icons.Default.VolumeUp),
+    AncStep(ZikProtocol.NoiseControlMode.STREET,     "STREET MAX",  "Full transparency (0 dB)",        Icons.Default.GraphicEq),
 )
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1616,8 +1616,8 @@ private fun PageNoiseControl(
         } else modeCount / 2                               // → OFF (index 2)
 
     val modeLabel = when (ancMode) {
-        ZikProtocol.NoiseControlMode.ANC        -> "Réduction de bruit (max)"
-        ZikProtocol.NoiseControlMode.ANC_LOW    -> "Réduction de bruit"
+        ZikProtocol.NoiseControlMode.ANC        -> "Noise reduction (max)"
+        ZikProtocol.NoiseControlMode.ANC_LOW    -> "Noise reduction"
         ZikProtocol.NoiseControlMode.STREET      -> "Street mode (max)"
         ZikProtocol.NoiseControlMode.STREET_LOW  -> "Street mode"
         else                                      -> "Off"
@@ -1675,7 +1675,7 @@ private fun PageNoiseControl(
     Column(Modifier.fillMaxSize()) {
         // ── ActionBar ─────────────────────────────────────────────────────
         ParrotTopBar(
-            title = "Contrôle du bruit",
+            title = "Noise Control",
             onMenuClick = onMenuOpen
         )
 
@@ -2086,12 +2086,12 @@ private fun AncFirmwareBanner(
         (ancMode != null && ancMode != ZikProtocol.NoiseControlMode.OFF)
 
     val modeLabel = when {
-        autoNc == true                                     -> "Mode Auto — adaptatif"
+        autoNc == true                                     -> "Auto Mode — adaptive"
         ancMode == ZikProtocol.NoiseControlMode.ANC        -> "ANC Max"
         ancMode == ZikProtocol.NoiseControlMode.ANC_LOW    -> "ANC Low"
         ancMode == ZikProtocol.NoiseControlMode.STREET     -> "Street Max"
         ancMode == ZikProtocol.NoiseControlMode.STREET_LOW -> "Street Low"
-        ancMode == ZikProtocol.NoiseControlMode.OFF        -> "Passif / OFF"
+        ancMode == ZikProtocol.NoiseControlMode.OFF        -> "Passive / OFF"
         else                                               -> ncStatus?.take(60) ?: return
     }
 
@@ -2162,7 +2162,7 @@ private fun AutoNcWave() {
         Row(verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(Icons.Default.Autorenew, null, tint = t.accent, modifier = Modifier.size(16.dp))
-            Text("Adaptation dynamique en cours",
+            Text("Dynamic adaptation in progress",
                 color = t.accent, fontSize = 13.sp, fontWeight = FontWeight.Bold)
         }
         Canvas(Modifier.fillMaxWidth().height(44.dp)) {
@@ -2222,7 +2222,7 @@ private fun DbChip() {
             Row(verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(Icons.Default.Mic, null, tint = t.textSecondary, modifier = Modifier.size(16.dp))
-                Text("Autoriser le micro", color = t.textSecondary, fontSize = 12.sp)
+                Text("Allow microphone", color = t.textSecondary, fontSize = 12.sp)
             }
         }
         return
@@ -2270,7 +2270,7 @@ private fun DbChip() {
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Icon(Icons.Default.Mic, null, tint = barColor, modifier = Modifier.size(18.dp))
-        Text("Niveau ambiant", color = t.textSecondary, fontSize = 12.sp, modifier = Modifier.weight(1f))
+        Text("Ambient level", color = t.textSecondary, fontSize = 12.sp, modifier = Modifier.weight(1f))
         Text("%.0f dB".format(dbRaw), color = barColor,
             fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
     }
@@ -2368,7 +2368,7 @@ private fun AmbientMirrorWidget(
                     else            -> t.textPrimary
                 },
                 fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
-            Text("Ambiant", color = t.textSecondary, fontSize = 10.sp)
+            Text("Ambient", color = t.textSecondary, fontSize = 10.sp)
         }
         // Séparateur
         Box(Modifier.width(1.dp).height(36.dp).background(t.dark))
@@ -2992,7 +2992,7 @@ private fun ThumbDisk(viewModel: ZikViewModel) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Appuyez pour activer\nl'égaliseur",
+                        "Tap to enable\nthe equalizer",
                         color      = t.textPrimary.copy(alpha = 0.80f),
                         fontSize   = 16.sp,
                         fontWeight = FontWeight.Bold,
@@ -3033,7 +3033,7 @@ private fun ThumbDisk(viewModel: ZikViewModel) {
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            "Touchez le disque pour repasser en mode manuel.",
+                            "Touch the disc to switch back to manual mode.",
                             color = t.textSecondary,
                             fontSize = 12.sp,
                             fontFamily = RobotoCondensed,
@@ -3162,7 +3162,7 @@ private fun PageEqualizer(viewModel: ZikViewModel, onMenuOpen: () -> Unit = {}) 
     }
 
     Column(Modifier.fillMaxSize()) {
-        ParrotTopBar(title = "Egaliseur", onMenuClick = onMenuOpen)
+        ParrotTopBar(title = "Equalizer", onMenuClick = onMenuOpen)
         Box(Modifier.weight(1f)) {
             ThumbDisk(viewModel)
         }
@@ -3184,7 +3184,7 @@ private fun PageEqualizer(viewModel: ZikViewModel, onMenuOpen: () -> Unit = {}) 
                     .weight(1f)
                     .height(42.dp)
             ) {
-                Text("Mes presets", fontFamily = RobotoCondensed, color = t.textPrimary)
+                Text("My presets", fontFamily = RobotoCondensed, color = t.textPrimary)
             }
             Box(
                 Modifier
@@ -3202,7 +3202,7 @@ private fun PageEqualizer(viewModel: ZikViewModel, onMenuOpen: () -> Unit = {}) 
                     .weight(1f)
                     .height(42.dp)
             ) {
-                Text("Creer un preset", fontFamily = RobotoCondensed, color = t.textPrimary)
+                Text("Create a preset", fontFamily = RobotoCondensed, color = t.textPrimary)
             }
         }
     }
@@ -3416,7 +3416,7 @@ private fun PageConcertHall(
                     fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, fontFamily = RobotoCondensed)
             }
             if (isOn) {
-                Text("Glissez sur les cercles pour régler l'angle",
+                Text("Slide on the circles to adjust the angle",
                     color = t.textSecondary.copy(alpha = 0.45f),
                     fontSize = 10.sp, fontFamily = RobotoCondensed)
             }
@@ -3546,7 +3546,7 @@ private fun CreatePresetScreen(
                 concertHallAngle = chAngle
             )
         } else {
-            val presetId = editingPresetId ?: return "Preset introuvable"
+            val presetId = editingPresetId ?: return "Preset not found"
             viewModel.updateParamPreset(
                 presetId = presetId,
                 name = targetName,
@@ -3586,13 +3586,13 @@ private fun CreatePresetScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Retour", tint = t.textPrimary)
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = t.textPrimary)
                 }
                 Text(
                     when {
-                        presetsMode -> "Mes presets"
-                        editingPresetId != null -> "Modifier le preset"
-                        else -> "Creer / editer"
+                        presetsMode -> "My presets"
+                        editingPresetId != null -> "Edit preset"
+                        else -> "Create / edit"
                     },
                     color = t.textPrimary,
                     fontSize = 18.sp,
@@ -3601,7 +3601,7 @@ private fun CreatePresetScreen(
                     modifier = Modifier.weight(1f)
                 )
                 TextButton(onClick = onDismiss) {
-                    Text("Retour EQ", color = t.textPrimary, fontFamily = RobotoCondensed, fontSize = 12.sp)
+                    Text("Back to EQ", color = t.textPrimary, fontFamily = RobotoCondensed, fontSize = 12.sp)
                 }
             }
 
@@ -3627,7 +3627,7 @@ private fun CreatePresetScreen(
                             backgroundColor = if (presetsMode) t.accent.copy(alpha = 0.10f) else Color.Transparent,
                             contentColor = if (presetsMode) t.accent else t.textSecondary
                         )
-                    ) { Text("Mes presets", fontFamily = RobotoCondensed, fontSize = 12.sp) }
+                    ) { Text("My presets", fontFamily = RobotoCondensed, fontSize = 12.sp) }
                     OutlinedButton(
                         onClick = {
                             presetsMode = false
@@ -3642,7 +3642,7 @@ private fun CreatePresetScreen(
                             backgroundColor = if (!presetsMode) t.accent.copy(alpha = 0.10f) else Color.Transparent,
                             contentColor = if (!presetsMode) t.accent else t.textSecondary
                         )
-                    ) { Text("Creer / editer", fontFamily = RobotoCondensed, fontSize = 12.sp) }
+                    ) { Text("Create / edit", fontFamily = RobotoCondensed, fontSize = 12.sp) }
                 }
 
                 if (presetsMode) {
@@ -3664,7 +3664,7 @@ private fun CreatePresetScreen(
                         )
                         if (presets.isEmpty()) {
                             Text(
-                                "Aucun preset sauvegarde pour le moment.",
+                                "No preset saved yet.",
                                 color = t.textSecondary,
                                 fontSize = 13.sp,
                                 fontFamily = RobotoCondensed
@@ -3676,7 +3676,7 @@ private fun CreatePresetScreen(
                                 },
                                 modifier = Modifier.align(Alignment.End)
                             ) {
-                                Text("Creer un preset", fontFamily = RobotoCondensed, color = t.textPrimary)
+                                Text("Create a preset", fontFamily = RobotoCondensed, color = t.textPrimary)
                             }
                         } else {
                             presets.forEach { p ->
@@ -3705,7 +3705,7 @@ private fun CreatePresetScreen(
                                                 overflow = TextOverflow.Ellipsis
                                             )
                                             Text(
-                                                if (isActive) "Preset actuellement applique" else "Preset personnalise",
+                                                if (isActive) "Currently applied preset" else "Custom preset",
                                                 color = t.textSecondary,
                                                 fontSize = 11.sp,
                                                 fontFamily = RobotoCondensed
@@ -3742,7 +3742,7 @@ private fun CreatePresetScreen(
                                             modifier = Modifier.weight(0.95f),
                                             contentPadding = PaddingValues(horizontal = 2.dp, vertical = 0.dp)
                                         ) {
-                                            Text("Appliquer", fontSize = 10.sp, fontFamily = RobotoCondensed, color = t.textPrimary, maxLines = 1)
+                                            Text("Apply", fontSize = 10.sp, fontFamily = RobotoCondensed, color = t.textPrimary, maxLines = 1)
                                         }
                                         TextButton(
                                             onClick = {
@@ -3752,7 +3752,7 @@ private fun CreatePresetScreen(
                                             modifier = Modifier.weight(0.82f),
                                             contentPadding = PaddingValues(horizontal = 2.dp, vertical = 0.dp)
                                         ) {
-                                            Text("Editer", fontSize = 10.sp, fontFamily = RobotoCondensed, color = t.textPrimary, maxLines = 1)
+                                            Text("Edit", fontSize = 10.sp, fontFamily = RobotoCondensed, color = t.textPrimary, maxLines = 1)
                                         }
                                         TextButton(
                                             onClick = {
@@ -3763,7 +3763,7 @@ private fun CreatePresetScreen(
                                             modifier = Modifier.weight(0.98f),
                                             contentPadding = PaddingValues(horizontal = 1.dp, vertical = 0.dp)
                                         ) {
-                                            Text("Renommer", fontSize = 10.sp, fontFamily = RobotoCondensed, color = t.textPrimary, maxLines = 1)
+                                            Text("Rename", fontSize = 10.sp, fontFamily = RobotoCondensed, color = t.textPrimary, maxLines = 1)
                                         }
                                         IconButton(
                                             onClick = {
@@ -3779,7 +3779,7 @@ private fun CreatePresetScreen(
                                         ) {
                                             Icon(
                                                 Icons.Default.Delete,
-                                                contentDescription = "Supprimer preset",
+                                                contentDescription = "Delete preset",
                                                 tint = t.textSecondary,
                                                 modifier = Modifier.size(16.dp)
                                             )
@@ -3815,7 +3815,7 @@ private fun CreatePresetScreen(
                                 fontFamily = RobotoCondensed
                             )
                             Text(
-                                "Le renommage se fait depuis l'onglet Mes presets.",
+                                "Renaming is done from the My presets tab.",
                                 color = t.textSecondary,
                                 fontSize = 12.sp,
                                 fontFamily = RobotoCondensed
@@ -3833,7 +3833,7 @@ private fun CreatePresetScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        "ÉGALISEUR PARAMÉTRIQUE",
+                        "PARAMETRIC EQUALIZER",
                         color = t.accent,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
@@ -3882,7 +3882,7 @@ private fun CreatePresetScreen(
                         onClick = { gains.indices.forEach { gains[it] = 0f } },
                         modifier = Modifier.align(Alignment.End)
                     ) {
-                        Text("Remettre à 0", color = t.textSecondary, fontSize = 12.sp, fontFamily = RobotoCondensed)
+                        Text("Reset to 0", color = t.textSecondary, fontSize = 12.sp, fontFamily = RobotoCondensed)
                     }
                 }
 
@@ -3972,7 +3972,7 @@ private fun CreatePresetScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        if (editingPresetId == null) "ENREGISTREMENT" else "MODIFICATION",
+                        if (editingPresetId == null) "SAVING" else "EDITING",
                         color = t.accent,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
@@ -3981,9 +3981,9 @@ private fun CreatePresetScreen(
                     )
                     Text(
                         if (editingPresetId == null)
-                            "Le nom sera demande au moment d'enregistrer le preset."
+                            "The name will be requested when saving the preset."
                         else
-                            "Les reglages seront enregistres sur le preset actuel. Le renommage se fait depuis Mes presets.",
+                            "Settings will be saved to the current preset. Renaming is done from My presets.",
                         color = t.textSecondary,
                         fontSize = 12.sp,
                         fontFamily = RobotoCondensed
@@ -4003,7 +4003,7 @@ private fun CreatePresetScreen(
                         if (editingPresetId != null) {
                             TextButton(onClick = { resetEditorState() }) {
                                 Text(
-                                    "Annuler edition",
+                                    "Cancel editing",
                                     fontSize = 11.sp,
                                     fontFamily = RobotoCondensed,
                                     color = t.textPrimary
@@ -4056,12 +4056,12 @@ private fun CreatePresetScreen(
                     saveError = null
                 },
                 title = {
-                    Text("Nom du preset", fontWeight = FontWeight.Bold, fontFamily = RobotoCondensed)
+                    Text("Preset name", fontWeight = FontWeight.Bold, fontFamily = RobotoCondensed)
                 },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            "Choisissez le nom du preset a enregistrer.",
+                            "Choose the name for the preset to save.",
                             color = t.textSecondary,
                             fontSize = 12.sp,
                             fontFamily = RobotoCondensed
@@ -4075,7 +4075,7 @@ private fun CreatePresetScreen(
                                 }
                             },
                             singleLine = true,
-                            placeholder = { Text("Ex: Basses", fontFamily = RobotoCondensed, color = t.textSecondary) },
+                            placeholder = { Text("Ex: Bass", fontFamily = RobotoCondensed, color = t.textSecondary) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.textFieldColors(
                                 textColor = t.textPrimary,
@@ -4103,7 +4103,7 @@ private fun CreatePresetScreen(
                             saveError = err
                         }
                     }) {
-                        Text("Enregistrer", fontFamily = RobotoCondensed)
+                        Text("Save", fontFamily = RobotoCondensed)
                     }
                 },
                 dismissButton = {
@@ -4111,7 +4111,7 @@ private fun CreatePresetScreen(
                         showSaveNameDialog = false
                         saveError = null
                     }) {
-                        Text("Annuler", fontFamily = RobotoCondensed)
+                        Text("Cancel", fontFamily = RobotoCondensed)
                     }
                 }
             )
@@ -4125,7 +4125,7 @@ private fun CreatePresetScreen(
                     renameError = null
                 },
                 title = {
-                    Text("Renommer le preset", fontWeight = FontWeight.Bold, fontFamily = RobotoCondensed)
+                    Text("Rename preset", fontWeight = FontWeight.Bold, fontFamily = RobotoCondensed)
                 },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -4138,7 +4138,7 @@ private fun CreatePresetScreen(
                                 }
                             },
                             singleLine = true,
-                            placeholder = { Text("Nom du preset", fontFamily = RobotoCondensed, color = t.textSecondary) },
+                            placeholder = { Text("Preset name", fontFamily = RobotoCondensed, color = t.textSecondary) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.textFieldColors(
                                 textColor = t.textPrimary,
@@ -4169,7 +4169,7 @@ private fun CreatePresetScreen(
                             renameError = err
                         }
                     }) {
-                        Text("Renommer", fontFamily = RobotoCondensed)
+                        Text("Rename", fontFamily = RobotoCondensed)
                     }
                 },
                 dismissButton = {
@@ -4178,7 +4178,7 @@ private fun CreatePresetScreen(
                         renameInput = ""
                         renameError = null
                     }) {
-                        Text("Annuler", fontFamily = RobotoCondensed)
+                        Text("Cancel", fontFamily = RobotoCondensed)
                     }
                 }
             )
@@ -4238,22 +4238,22 @@ private fun PageSettings(
 
     // Labels mode téléphonique ANC
     val phoneModes = listOf(
-        "anc"    to "Réduction de bruit",
-        "aoc"    to "Réduction de bruit",
+        "anc"    to "Noise reduction",
+        "aoc"    to "Noise reduction",
         "street" to "Street mode",
-        "off"    to "Désactivé"
+        "off"    to "Disabled"
     )
     val phoneModeLabel = phoneModes.firstOrNull { it.first == phoneMode }?.second ?: phoneMode
 
-    val apoPairs = listOf(0 to "Desactive", 5 to "5 minutes", 10 to "10 minutes",
-                          20 to "20 minutes", 30 to "30 minutes", 60 to "1 heure")
+    val apoPairs = listOf(0 to "Disabled", 5 to "5 minutes", 10 to "10 minutes",
+                          20 to "20 minutes", 30 to "30 minutes", 60 to "1 hour")
     val apoLabel = apoPairs.firstOrNull { it.first == autoPowerOff }?.second
-        ?: if (autoPowerOff == null) "Desactive" else "${autoPowerOff} min"
+        ?: if (autoPowerOff == null) "Disabled" else "${autoPowerOff} min"
 
     if (showAutoPowerOffDialog) {
         AlertDialog(
             onDismissRequest = { showAutoPowerOffDialog = false },
-            title = { Text("Arret automatique", fontWeight = FontWeight.Bold,
+            title = { Text("Auto power-off", fontWeight = FontWeight.Bold,
                 fontFamily = RobotoCondensed) },
             text = {
                 Column {
@@ -4284,7 +4284,7 @@ private fun PageSettings(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showAutoPowerOffDialog = false }) {
-                    Text("Fermer", fontFamily = RobotoCondensed)
+                    Text("Close", fontFamily = RobotoCondensed)
                 }
             }
         )
@@ -4332,7 +4332,7 @@ private fun PageSettings(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showThemeDialog = false }) {
-                    Text("Fermer", fontFamily = RobotoCondensed)
+                    Text("Close", fontFamily = RobotoCondensed)
                 }
             }
         )
@@ -4341,10 +4341,10 @@ private fun PageSettings(
     if (showPhoneModeDialog) {
         AlertDialog(
             onDismissRequest = { showPhoneModeDialog = false },
-            title = { Text("En appel", fontWeight = FontWeight.Bold, fontFamily = RobotoCondensed) },
+            title = { Text("On call", fontWeight = FontWeight.Bold, fontFamily = RobotoCondensed) },
             text = {
                 Column {
-                    listOf("anc" to "Réduction de bruit", "street" to "Street mode", "off" to "Désactivé").forEach { (modeKey, modeLabel) ->
+                    listOf("anc" to "Noise reduction", "street" to "Street mode", "off" to "Disabled").forEach { (modeKey, modeLabel) ->
                         Row(
                             Modifier.fillMaxWidth()
                                 .clickable {
@@ -4370,7 +4370,7 @@ private fun PageSettings(
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showPhoneModeDialog = false }) {
-                    Text("Fermer", fontFamily = RobotoCondensed)
+                    Text("Close", fontFamily = RobotoCondensed)
                 }
             }
         )
@@ -4382,7 +4382,7 @@ private fun PageSettings(
                 showNameDialog = false
                 nameError = null
             },
-            title = { Text("Nom du Parrot Zik", fontWeight = FontWeight.Bold, fontFamily = RobotoCondensed) },
+            title = { Text("Parrot Zik Name", fontWeight = FontWeight.Bold, fontFamily = RobotoCondensed) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextField(
@@ -4428,7 +4428,7 @@ private fun PageSettings(
                         }
                     }
                 }) {
-                    Text("Appliquer", fontFamily = RobotoCondensed)
+                    Text("Apply", fontFamily = RobotoCondensed)
                 }
             },
             dismissButton = {
@@ -4436,14 +4436,14 @@ private fun PageSettings(
                     showNameDialog = false
                     nameError = null
                 }) {
-                    Text("Annuler", fontFamily = RobotoCondensed)
+                    Text("Cancel", fontFamily = RobotoCondensed)
                 }
             }
         )
     }
 
     Column(Modifier.fillMaxSize()) {
-        ParrotTopBar(title = "Réglages", onMenuClick = onMenuOpen)
+        ParrotTopBar(title = "Settings", onMenuClick = onMenuOpen)
         Column(
             Modifier
                 .weight(1f)
@@ -4464,7 +4464,7 @@ private fun PageSettings(
                 Icon(Icons.Default.BatteryAlert, null, tint = Color(0xFFFF8F00),
                     modifier = Modifier.size(20.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Diagnostic batterie", color = Color(0xFFFF8F00), fontSize = 12.sp,
+                    Text("Battery diagnostic", color = Color(0xFFFF8F00), fontSize = 12.sp,
                         fontWeight = FontWeight.Bold, fontFamily = RobotoCondensed)
                     Text(batteryCalibWarn ?: "", color = t.textPrimary, fontSize = 12.sp,
                         lineHeight = 16.sp)
@@ -4474,7 +4474,7 @@ private fun PageSettings(
 
         // Ref row 1 : Nom du Parrot Zik [30,222][693/1050,432] = 70dp
         SettingsRow(
-            label = "Nom du Parrot Zik",
+            label = "Parrot Zik Name",
             value = deviceName,
             onClick = {
                 pendingDeviceName = deviceName
@@ -4482,19 +4482,19 @@ private fun PageSettings(
                 showNameDialog = true
             }
         )
-        SettingsRow(label = "En appel", value = phoneModeLabel,
+        SettingsRow(label = "On call", value = phoneModeLabel,
             onClick = { showPhoneModeDialog = true })
-        SettingsSwitchRow(label = "Capteur de presence",
+        SettingsSwitchRow(label = "Presence sensor",
             checked = presenceSensor == true, onChanged = onTogglePresence)
-        SettingsSwitchRow(label = "Auto-connexion",
+        SettingsSwitchRow(label = "Auto-connect",
             checked = autoConnection == true) { viewModel.setAutoConnection(it) }
 
-        SettingsRow(label = "Arret automatique", value = apoLabel,
+        SettingsRow(label = "Auto power-off", value = apoLabel,
             onClick = { showAutoPowerOffDialog = true })
-        SettingsSwitchRow(label = "Annonce vocale de l'appelant",
+        SettingsSwitchRow(label = "Caller voice announcement",
             checked = ttsEnabled == true) { viewModel.setTtsEnabled(it) }
         SettingsSwitchRow(
-            label = "Afficher la barre de notification",
+            label = "Show notification bar",
             checked = showBatteryNotification
         ) { checked ->
             if (checked) {
@@ -4529,7 +4529,7 @@ private fun PageSettings(
         Spacer(Modifier.height(16.dp))
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                "Si vous voulez supporter le projet :",
+                "If you want to support the project:",
                 color = t.textSecondary,
                 fontSize = 12.sp,
                 fontFamily = RobotoCondensed
@@ -4839,7 +4839,7 @@ private fun ZikDrawerContent(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         // Titre
-                            Text("Mode d'emploi — Ziker / Parrot Zik 3",
+                            Text("User Manual — Ziker / Parrot Zik 3",
                             fontFamily = RobotoCondensed,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
@@ -4848,7 +4848,7 @@ private fun ZikDrawerContent(
                         Spacer(Modifier.height(4.dp))
 
                             Text(
-                                "Cette aide reprend l'esprit du manuel Parrot et l'adapte a Ziker tel qu'il fonctionne aujourd'hui : commande locale du casque, reproduction des ecrans historiques, et acces direct aux fonctions reellement supportees par le firmware.",
+                                "This help guide follows the spirit of the Parrot manual and adapts it to Ziker as it works today: local headset control, reproduction of the original screens, and direct access to the functions actually supported by the firmware.",
                                 fontSize = 13.sp,
                                 fontFamily = RobotoCondensed,
                                 color = t.textSecondary,
@@ -4856,7 +4856,7 @@ private fun ZikDrawerContent(
                             )
 
                             Text(
-                                "Navigation rapide : utilisez les onglets en bas pour passer d'un ecran a l'autre. Le menu lateral sert au resume d'etat, a l'aide et aux reglages. Pour refermer le menu, glissez vers la gauche sur la zone vide ou utilisez la fleche de retour dans l'en-tete.",
+                                "Quick navigation: use the tabs at the bottom to switch between screens. The side menu shows status summary, help, and settings. To close the menu, swipe left on the empty area or use the back arrow in the header.",
                                 fontSize = 13.sp,
                                 fontFamily = RobotoCondensed,
                                 color = t.textSecondary,
@@ -4864,22 +4864,22 @@ private fun ZikDrawerContent(
                             )
 
                         val sectionData = listOf(
-                                "\uD83C\uDFA7  Tableau de bord" to
-                                    "Le tableau de bord regroupe les informations utiles au quotidien : niveau de batterie, etat de charge, titre en lecture et commandes media. Appuyez sur la pochette pour lecture / pause, et utilisez les boutons precedent / suivant pour piloter la source audio connectee.\n\nLes cartes de statut donnent aussi un acces rapide aux grandes fonctions du casque : egaliseur, controle du bruit, Concert Hall et capteur de presence.",
-                                "\uD83C\uDF0A  Controle du bruit" to
-                                    "Cette page reprend la logique Parrot : un axe vertical pour passer d'un mode a l'autre. Selon le modele et l'etat du firmware, Ziker pilote :\n• Reduction de bruit max\n• Reduction de bruit legere\n• OFF / passif\n• Street mode leger\n• Street mode max\n\nLe mode AUTO verrouille le geste manuel pendant que le casque ajuste lui-meme le niveau. Le cercle central affiche le bruit ambiant mesure ; au-dessus d'environ 85 dB, l'affichage passe en rouge pour signaler un environnement bruyant.",
-                                "\uD83C\uDFB5  Egaliseur Thumb EQ" to
-                                    "L'ecran EQ reste la commande rapide historique du Zik. Le disque central permet de modeler la signature sonore du bout des doigts, dans l'esprit 'Tune your music with your fingertips' de l'application Parrot.\n\nLes presets integres Pop, Vocal, Crystal, Club, Punchy et Deep sont accessibles directement. Ils servent de points de reference et de raccourcis d'ecoute, puis le Thumb EQ affine ensuite la courbe envoyee au casque.",
-                                "\uD83D\uDCC1  Mes presets / Creer un preset" to
-                                    "Depuis la page EQ, deux entrees coexistent :\n• Mes presets : liste vos presets locaux, avec Appliquer, Editer et Supprimer\n• Creer un preset : ouvre l'editeur complet\n\nQuand vous appliquez un preset, il est immediatement envoye au casque et reste en place. Si vous basculez ensuite vers Creer / editer, Ziker repart des valeurs du preset applique au lieu de reinitialiser l'EQ.\n\nL'editeur enregistre un preset complet : nom, EQ parametrique 5 bandes et etat Concert Hall.",
-                                "\uD83C\uDF9B  EQ parametrique + Concert Hall" to
-                                    "L'editeur avance permet de regler 5 bandes : 60 Hz, 200 Hz, 1 kHz, 2,4 kHz et 11 kHz. Chaque bande agit directement sur le casque pendant l'edition, ce qui permet d'entendre le resultat en temps reel.\n\nLe preset peut aussi memoriser le Concert Hall : activation, type de salle (Silent Room, Living Room, Jazz Club, Concert Hall) et angle de position de 0° a 180°. Cela permet de rappeler en une seule action une combinaison complete EQ + spatialisation.",
-                                "\u2699\uFE0F  Reglages et comportement du casque" to
-                                    "La page Reglages centralise les options systeme disponibles dans Ziker : theme visuel, nom du casque, arret automatique, auto-connexion, annonce vocale de l'appelant, capteur de presence, informations firmware et adresse MAC.\n\nLe capteur de presence reprend la logique Parrot : selon le casque et son etat, retirer le Zik ou le poser autour du cou peut mettre la lecture en pause. Les options avancees permettent aussi d'ajuster le comportement du Thumb EQ et l'orientation gauche / droite.",
-                                "\uD83D\uDD14  Batterie et notifications" to
-                                    "Ziker maintient une notification systeme persistante tant que le service Bluetooth du casque est actif. Elle affiche l'etat de connexion et le pourcentage de batterie dans la barre systeme.\n\nDes alertes se declenchent egalement en batterie faible pour eviter une coupure sans preavis. Si aucune notification n'apparait, verifiez que les notifications Android de l'application ne sont pas bloquees au niveau systeme.",
-                                "\u2139\uFE0F  Ce que fait Ziker" to
-                                    "Ziker vise d'abord la reconstruction technique des fonctions audio et systeme reellement acceptees par le casque : Bluetooth, EQ, ANC, Concert Hall, presets, capteurs et reglages utiles. Certaines briques communautaires de l'application Parrot d'origine (boutique, cloud de presets, services externes) ne sont pas le coeur de cette version et peuvent ne pas etre reproduites de la meme maniere."
+                                "\uD83C\uDFA7  Dashboard" to
+                                    "The dashboard brings together everyday useful information: battery level, charge status, currently playing track, and media controls. Tap the artwork for play/pause, and use the previous/next buttons to control the connected audio source.\n\nThe status cards also provide quick access to the headset's main functions: equalizer, noise control, Concert Hall, and presence sensor.",
+                                "\uD83C\uDF0A  Noise Control" to
+                                    "This page follows Parrot's logic: a vertical axis to switch between modes. Depending on the model and firmware state, Ziker controls:\n• Max noise reduction\n• Light noise reduction\n• OFF / passive\n• Light street mode\n• Max street mode\n\nAUTO mode locks manual gestures while the headset adjusts the level itself. The central circle displays measured ambient noise; above approximately 85 dB, the display turns red to indicate a noisy environment.",
+                                "\uD83C\uDFB5  Thumb EQ Equalizer" to
+                                    "The EQ screen is the Zik's iconic quick control. The central disc lets you shape the sound signature with your fingertips, in the spirit of Parrot's 'Tune your music with your fingertips' app.\n\nThe built-in presets Pop, Vocal, Crystal, Club, Punchy, and Deep are directly accessible. They serve as reference points and listening shortcuts, with the Thumb EQ then refining the curve sent to the headset.",
+                                "\uD83D\uDCC1  My presets / Create a preset" to
+                                    "From the EQ page, two entries coexist:\n• My presets: lists your local presets, with Apply, Edit, and Delete\n• Create a preset: opens the full editor\n\nWhen you apply a preset, it is immediately sent to the headset and remains in place. If you then switch to Create / edit, Ziker resumes from the applied preset's values instead of resetting the EQ.\n\nThe editor saves a complete preset: name, 5-band parametric EQ, and Concert Hall state.",
+                                "\uD83C\uDF9B  Parametric EQ + Concert Hall" to
+                                    "The advanced editor lets you adjust 5 bands: 60 Hz, 200 Hz, 1 kHz, 2.4 kHz, and 11 kHz. Each band acts directly on the headset during editing, allowing you to hear the result in real time.\n\nThe preset can also store the Concert Hall state: activation, room type (Silent Room, Living Room, Jazz Club, Concert Hall), and position angle from 0° to 180°. This allows recalling a complete EQ + spatialization combination in a single action.",
+                                "\u2699\uFE0F  Settings and headset behavior" to
+                                    "The Settings page centralizes the system options available in Ziker: visual theme, headset name, auto power-off, auto-connect, caller voice announcement, presence sensor, firmware info, and MAC address.\n\nThe presence sensor follows Parrot's logic: depending on the headset and its state, removing the Zik or resting it around the neck may pause playback. Advanced options also allow adjusting the Thumb EQ behavior and left/right orientation.",
+                                "\uD83D\uDD14  Battery and notifications" to
+                                    "Ziker maintains a persistent system notification as long as the headset's Bluetooth service is active. It displays the connection status and battery percentage in the system bar.\n\nAlerts also trigger on low battery to prevent an unexpected cutoff. If no notification appears, check that the app's Android notifications are not blocked at the system level.",
+                                "\u2139\uFE0F  What Ziker does" to
+                                    "Ziker first aims at the technical reconstruction of the audio and system functions actually accepted by the headset: Bluetooth, EQ, ANC, Concert Hall, presets, sensors, and useful settings. Some community features of the original Parrot app (store, preset cloud, external services) are not the core of this version and may not be reproduced in the same way."
                         )
                         sectionData.forEach { (title, body) ->
                             Text(title,
@@ -4920,7 +4920,7 @@ private fun ZikDrawerContent(
                         contentAlignment = Alignment.CenterEnd
                     ) {
                         TextButton(onClick = { showHelpDialog = false }) {
-                            Text("Fermer", fontFamily = RobotoCondensed, color = t.accent)
+                            Text("Close", fontFamily = RobotoCondensed, color = t.accent)
                         }
                     }
                 }
@@ -4960,7 +4960,7 @@ private fun ZikDrawerContent(
                 ) {
                     Icon(
                         Icons.Default.ChevronLeft,
-                        contentDescription = "Fermer le menu",
+                        contentDescription = "Close menu",
                         tint = t.textSecondary,
                         modifier = Modifier.size(22.dp)
                     )
@@ -5003,7 +5003,7 @@ private fun ZikDrawerContent(
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        if (isCharging) "Batterie: $battery% (charge)" else "Batterie: $battery%",
+                        if (isCharging) "Battery: $battery% (charging)" else "Battery: $battery%",
                         fontSize = 12.sp,
                         color = t.textPrimary,
                         fontWeight = FontWeight.Bold,
@@ -5035,24 +5035,24 @@ private fun ZikDrawerContent(
             ) {
                 if (autoPowerOff != null) {
                     DrawerInfoRow(
-                        label = "Auto-veille",
-                        value = if (autoPowerOff == 0) "Désactivée" else "${autoPowerOff} min",
+                        label = "Auto sleep",
+                        value = if (autoPowerOff == 0) "Disabled" else "${autoPowerOff} min",
                         valueColor = if (autoPowerOff == 0) statusOffColor else t.textPrimary,
                         t = t
                     )
                 }
                 if (autoConnection != null) {
                     DrawerInfoRow(
-                        label = "Auto-connexion",
-                        value = if (autoConnection == true) "Activée" else "Désactivée",
+                        label = "Auto-connect",
+                        value = if (autoConnection == true) "Enabled" else "Disabled",
                         valueColor = if (autoConnection == true) statusOnColor else statusOffColor,
                         t = t
                     )
                 }
                 if (ttsEnabled != null) {
                     DrawerInfoRow(
-                        label = "Annonces vocales",
-                        value = if (ttsEnabled == true) "Activées" else "Désactivées",
+                        label = "Voice announcements",
+                        value = if (ttsEnabled == true) "Enabled" else "Disabled",
                         valueColor = if (ttsEnabled == true) statusOnColor else statusOffColor,
                         t = t
                     )
@@ -5063,12 +5063,12 @@ private fun ZikDrawerContent(
 
         // ── Statut audio / capteurs ───────────────────────────────────────
         val ancLabel = when (ancMode) {
-            ZikProtocol.NoiseControlMode.ANC        -> "ANC fort"
-            ZikProtocol.NoiseControlMode.ANC_LOW    -> "ANC léger"
-            ZikProtocol.NoiseControlMode.STREET     -> "Rue fort"
-            ZikProtocol.NoiseControlMode.STREET_LOW -> "Rue léger"
-            ZikProtocol.NoiseControlMode.OFF        -> "Bruit: OFF"
-            null                                    -> "Bruit: —"
+            ZikProtocol.NoiseControlMode.ANC        -> "ANC strong"
+            ZikProtocol.NoiseControlMode.ANC_LOW    -> "ANC light"
+            ZikProtocol.NoiseControlMode.STREET     -> "Street strong"
+            ZikProtocol.NoiseControlMode.STREET_LOW -> "Street light"
+            ZikProtocol.NoiseControlMode.OFF        -> "Noise: OFF"
+            null                                    -> "Noise: —"
         }
         Column(
             Modifier
@@ -5077,16 +5077,16 @@ private fun ZikDrawerContent(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                "Statut en direct",
+                "Live status",
                 fontSize = 10.sp,
                 color = t.textSecondary.copy(alpha = 0.68f),
                 fontFamily = RobotoCondensed
             )
-            DrawerInfoRow(label = "Réduction bruit", value = ancLabel, t = t)
+            DrawerInfoRow(label = "Noise reduction", value = ancLabel, t = t)
             if (eqEnabled != null) {
                 DrawerInfoRow(
-                    label = "Égaliseur",
-                    value = if (eqEnabled == true) "Actif" else "Inactif",
+                    label = "Equalizer",
+                    value = if (eqEnabled == true) "Active" else "Inactive",
                     valueColor = if (eqEnabled == true) statusOnColor else statusOffColor,
                     t = t
                 )
@@ -5094,14 +5094,14 @@ private fun ZikDrawerContent(
             if (concertEnabled != null) {
                 DrawerInfoRow(
                     label = "Concert Hall",
-                    value = if (concertEnabled == true) "Actif" else "Inactif",
+                    value = if (concertEnabled == true) "Active" else "Inactive",
                     valueColor = if (concertEnabled == true) statusOnColor else statusOffColor,
                     t = t
                 )
             }
             if (presenceSensor != null) {
                 DrawerInfoRow(
-                    label = "Détection tête",
+                    label = "Head detection",
                     value = if (presenceSensor == true) "Active" else "Inactive",
                     valueColor = if (presenceSensor == true) statusOnColor else statusOffColor,
                     t = t
@@ -5110,14 +5110,14 @@ private fun ZikDrawerContent(
             if (presenceWorn != null || phoneMode.isNotBlank()) {
                 if (presenceWorn != null) {
                     DrawerInfoRow(
-                        label = "Port du casque",
-                        value = if (presenceWorn == true) "Porté" else "Retiré",
+                        label = "Headset wearing",
+                        value = if (presenceWorn == true) "Worn" else "Removed",
                         valueColor = if (presenceWorn == true) statusOnColor else statusOffColor,
                         t = t
                     )
                 }
                 if (phoneMode.isNotBlank()) {
-                    DrawerInfoRow(label = "Mode téléphone", value = phoneMode.uppercase(), t = t)
+                    DrawerInfoRow(label = "Phone mode", value = phoneMode.uppercase(), t = t)
                 }
             }
         }
@@ -5125,13 +5125,13 @@ private fun ZikDrawerContent(
 
         // ── Navigation ────────────────────────────────────────────────────
         val navItems = listOf(
-            DrawerItem(0, Icons.Default.Dashboard, "Menu principal"),
-            DrawerItem(4, Icons.Default.Settings,  "Réglages"),
+            DrawerItem(0, Icons.Default.Dashboard, "Main menu"),
+            DrawerItem(4, Icons.Default.Settings,  "Settings"),
         )
         Column(Modifier.fillMaxWidth()) {
             navItems.forEach { item ->
-                val isActive = (item.label == "Menu principal" && currentPage == 0)
-                            || (item.label == "Réglages"       && currentPage == 4)
+                val isActive = (item.label == "Main menu" && currentPage == 0)
+                            || (item.label == "Settings"       && currentPage == 4)
                 ZikDrawerRow(
                     icon     = item.icon,
                     label    = item.label,
@@ -5143,7 +5143,7 @@ private fun ZikDrawerContent(
             }
             ZikDrawerRow(
                 icon = Icons.Default.Refresh,
-                label = "Reconnecter le casque",
+                label = "Reconnect headset",
                 isActive = false,
                 onClick = {
                     onReconnectHeadset()
@@ -5153,7 +5153,7 @@ private fun ZikDrawerContent(
             if (LocalDemoMode.current) {
                 ZikDrawerRow(
                     icon = Icons.Default.ExitToApp,
-                    label = "Quitter mode démo",
+                    label = "Exit demo mode",
                     isActive = false,
                     onClick = {
                         onQuitDemo()
@@ -5195,12 +5195,12 @@ private fun ZikDrawerContent(
                 .padding(horizontal = 22.dp, vertical = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("🇫🇷 RMDaye with VS Code 🇫🇷",
+            Text("🇬🇧 RMDaye with VS Code 🇬🇧",
                 color = t.textPrimary, fontSize = 12.sp,
                 fontWeight = FontWeight.Bold, fontFamily = RobotoCondensed)
             Spacer(Modifier.height(6.dp))
             Text(
-                "Si vous voulez supporter le projet :",
+                "If you want to support the project:",
                 color = t.textSecondary,
                 fontSize = 11.sp,
                 fontFamily = RobotoCondensed

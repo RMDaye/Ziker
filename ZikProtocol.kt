@@ -316,7 +316,7 @@ object ZikProtocol {
 
     /**
      * Parse le mode ANC depuis une réponse XML du casque.
-     * Supporte l'attribut type="anc|off|aoc" (réponse SET) et enabled="true|false" (réponse GET).
+     * Supports attribute type="anc|off|aoc" (SET response) and enabled="true|false" (GET response).
      */
     fun parseAncModeFromXml(xml: String?): NoiseControlMode? {
         if (xml == null) return null
@@ -717,7 +717,7 @@ object ZikProtocol {
 
         // ── Compte (#061–#063) ───────────────────────────────────────────────
         "ACCOUNT_USERNAME_GET"          to "/api/account/username/get",              // [VERIFIED NOTE3] #061
-        // "ACCOUNT_USERNAME_SET"       to "/api/account/username/set?arg=",         // [OBSOLÈTE] #063 → error="true" si arg vide
+        // "ACCOUNT_USERNAME_SET"       to "/api/account/username/set?arg=",         // [OBSOLETE] #063 → error="true" if arg empty
     )
 
     /**

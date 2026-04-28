@@ -82,7 +82,7 @@ class AudioVisualizerManager {
             visualizer = viz
             _isActive.value = true
         } catch (e: Exception) {
-            Log.e(TAG, "Impossible de démarrer le Visualizer : ${e.message}")
+            Log.e(TAG, "Unable to start Visualizer: ${e.message}")
             _isActive.value = false
         }
     }

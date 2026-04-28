@@ -153,11 +153,11 @@ class ZikBluetoothService : Service() {
                 }
                 BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
                     _isScanning.tryEmit(false)
-                    Log.i(TAG, "Scan terminé — ${_scannedDevices.value.size} appareil(s) trouvé(s)")
+                    Log.i(TAG, "Scan complete — ${_scannedDevices.value.size} device(s) found")
                 }
                 BluetoothAdapter.ACTION_DISCOVERY_STARTED -> {
                     _isScanning.tryEmit(true)
-                    Log.i(TAG, "Scan démarré")
+                    Log.i(TAG, "Scan started")
                 }
             }
         }
@@ -171,9 +171,9 @@ class ZikBluetoothService : Service() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val state = intent?.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
             if (state == BluetoothAdapter.STATE_ON) {
-                Log.i(TAG, "Bluetooth réactivé (STATE_ON) — vérification connexion casque")
+                Log.i(TAG, "Bluetooth re-enabled (STATE_ON) — checking headset connection")
                 if (!_connected.value && !connectLoopRunning) {
-                    Log.i(TAG, "Relance de connectLoop après réveil BT")
+                    Log.i(TAG, "Restarting connectLoop after BT wakeup")
                     connectLoopJob = scope.launch { connectLoop() }
                 }
             }
@@ -201,15 +201,15 @@ class ZikBluetoothService : Service() {
         // Ne pas lancer de discovery si la boucle de connexion est active :
         // adapter.startDiscovery() sature la bande passante BT et casse RFCOMM.
         if (connectLoopRunning) {
-            Log.i(TAG, "startScan: connectLoop active — skip discovery (RFCOMM protégé)")
+            Log.i(TAG, "startScan: connectLoop active — skip discovery (RFCOMM protected)")
         } else {
             if (adapter.isDiscovering) adapter.cancelDiscovery()
             val started = adapter.startDiscovery()
-            Log.i(TAG, "startScan: démarrage scan Bluetooth → started=$started")
+            Log.i(TAG, "startScan: starting Bluetooth scan → started=$started")
         }
         // Lancer la boucle de connexion si elle n'est pas déjà active
         if (!_connected.value && !connectLoopRunning) {
-            Log.i(TAG, "startScan: lancement connectLoop (casque déconnecté, loop inactive)")
+            Log.i(TAG, "startScan: launching connectLoop (headset disconnected, loop inactive)")
             connectLoopJob = scope.launch { connectLoop() }
         }
     }
@@ -242,7 +242,7 @@ class ZikBluetoothService : Service() {
             return
         }
         // Boucle non active → lancer
-        Log.i(TAG, "connectToAddress: démarrage loop vers $address")
+        Log.i(TAG, "connectToAddress: starting loop towards $address")
         connectLoopJob?.cancel()
         connectLoopRunning = false
         connectLoopJob = scope.launch { connectLoop() }
@@ -283,16 +283,16 @@ class ZikBluetoothService : Service() {
     private fun injectRaw(vararg bytes: Byte) {
         val out = output
         if (out == null) {
-            Log.w(TAG, "injectRaw: socket non connectée, bytes ignorés")
+            Log.w(TAG, "injectRaw: socket not connected, bytes ignored")
             return
         }
         scope.launch(Dispatchers.IO) {
             try {
                 out.write(bytes)
                 out.flush()
-                Log.i(TAG, "injectRaw: ${bytes.size} octets envoyés -> ${bytes.joinToString { "0x%02X".format(it) }}")
+                Log.i(TAG, "injectRaw: ${bytes.size} bytes sent -> ${bytes.joinToString { "0x%02X".format(it) }}")
             } catch (e: Exception) {
-                Log.e(TAG, "injectRaw: erreur écriture", e)
+                Log.e(TAG, "injectRaw: write error", e)
             }
         }
     }
@@ -319,7 +319,7 @@ class ZikBluetoothService : Service() {
                 }
                 ACTION_BATTERY -> {
                     enqueuePacket(ZikProtocol.packetForBattery())
-                    Log.i(TAG, "ACTION_BATTERY : requête envoyée")
+                    Log.i(TAG, "ACTION_BATTERY: request sent")
                 }
                 ACTION_STATUS_GET -> {
                     enqueuePacket(ZikProtocol.packetForNoiseControlGet())
@@ -344,14 +344,14 @@ class ZikBluetoothService : Service() {
                         if (show) {
                             // Si permission manquante sur API 33+, rien ne fera apparaître la notif → le launcher doit demander
                             startForeground(NOTIF_ID, buildNotification(connected = _connected.value, battery = _battery.value))
-                            Log.i(TAG, "Notification persistante activée via préférence")
+                            Log.i(TAG, "Persistent notification enabled via preference")
                         } else {
                             stopForeground(true)
                             NotificationManagerCompat.from(this@ZikBluetoothService).cancel(NOTIF_ID)
-                            Log.i(TAG, "Notification persistante désactivée via préférence")
+                            Log.i(TAG, "Persistent notification disabled via preference")
                         }
                     } catch (e: Exception) {
-                        Log.w(TAG, "Erreur en appliquant préférence notification", e)
+                        Log.w(TAG, "Error applying notification preference", e)
                     }
                 }
                 ACTION_EQ_GET -> {
@@ -386,7 +386,7 @@ class ZikBluetoothService : Service() {
     /**
      * Dernier statut brut reçu depuis /api/audio/noise_control/enabled/get.
      * Mis à jour toutes les ~2 s par le job de monitoring Auto-NC.
-     * Valeurs : "✔ NC activé (firmware)" | "✖ NC désactivé (passif)" | null (pas encore reçu)
+     * Values: "✔ NC enabled (firmware)" | "✖ NC disabled (passive)" | null (not yet received)
      */
     private val _ncFirmwareStatus = MutableStateFlow<String?>(null)
     val ncFirmwareStatus = _ncFirmwareStatus.asStateFlow()
@@ -575,7 +575,7 @@ class ZikBluetoothService : Service() {
             addAction(ACTION_EQ_GET)
         }
         registerReceiver(adbReceiver, filter, Context.RECEIVER_EXPORTED)
-        Log.i(TAG, "BroadcastReceiver enregistré (ANC / BATTERY / AUTO_NC / EQ)")
+        Log.i(TAG, "BroadcastReceiver registered (ANC / BATTERY / AUTO_NC / EQ)")
         // Écoute le réveil Bluetooth pour relancer la connexion au casque
         // RECEIVER_NOT_EXPORTED : ACTION_STATE_CHANGED est un broadcast système protégé (API 33+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -584,7 +584,7 @@ class ZikBluetoothService : Service() {
         } else {
             registerReceiver(btStateReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
         }
-        Log.i(TAG, "btStateReceiver enregistré (ACTION_STATE_CHANGED)")
+        Log.i(TAG, "btStateReceiver registered (ACTION_STATE_CHANGED)")
         // Récepteur pour la découverte d'appareils
         val discoveryFilter = IntentFilter().apply {
             addAction(BluetoothDevice.ACTION_FOUND)
@@ -597,7 +597,7 @@ class ZikBluetoothService : Service() {
         } else {
             registerReceiver(discoveryReceiver, discoveryFilter)
         }
-        Log.i(TAG, "discoveryReceiver enregistré (ACTION_FOUND / DISCOVERY_*")
+        Log.i(TAG, "discoveryReceiver registered (ACTION_FOUND / DISCOVERY_*")
         // Receiver média : track change → une seule requête RFCOMM
         val mediaFilter = IntentFilter().apply {
             addAction("android.bluetooth.a2dp.profile.action.PLAYING_STATE_CHANGED")
@@ -612,7 +612,7 @@ class ZikBluetoothService : Service() {
         } else {
             registerReceiver(mediaChangeReceiver, mediaFilter)
         }
-        Log.i(TAG, "mediaChangeReceiver enregistré (track change / A2DP play state)")
+        Log.i(TAG, "mediaChangeReceiver registered (track change / A2DP play state)")
         // Respecter préférence notification au démarrage
         try {
             val prefs = getSharedPreferences("zik_prefs", Context.MODE_PRIVATE)
@@ -621,10 +621,10 @@ class ZikBluetoothService : Service() {
                 // Retirer la notification si l'utilisateur l'a désactivée
                 stopForeground(true)
                 NotificationManagerCompat.from(this).cancel(NOTIF_ID)
-                Log.i(TAG, "Notification persistante désactivée par préférence utilisateur")
+                Log.i(TAG, "Persistent notification disabled by user preference")
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Impossible de lire préférence notification", e)
+            Log.w(TAG, "Unable to read notification preference", e)
         }
     }
 
@@ -647,16 +647,16 @@ class ZikBluetoothService : Service() {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         // Canal principal : DEFAULT + silence forcé → icône visible dans la barre d'état
         if (nm.getNotificationChannel(CHANNEL_ID) == null) {
-            val channel = NotificationChannel(CHANNEL_ID, "Zik — État connexion", NotificationManager.IMPORTANCE_DEFAULT)
-            channel.description = "Affiche l'état de connexion et la batterie du casque"
+            val channel = NotificationChannel(CHANNEL_ID, "Zik — Connection status", NotificationManager.IMPORTANCE_DEFAULT)
+            channel.description = "Shows the connection status and headset battery"
             channel.setSound(null, null)
             channel.enableVibration(false)
             nm.createNotificationChannel(channel)
         }
         // Canal alertes basse batterie (son + vibration intentionnels)
         if (nm.getNotificationChannel(BATTERY_ALERT_CHANNEL_ID) == null) {
-            val alertChannel = NotificationChannel(BATTERY_ALERT_CHANNEL_ID, "Batterie faible Zik", NotificationManager.IMPORTANCE_HIGH)
-            alertChannel.description = "Alerte quand la batterie du casque Parrot Zik est faible"
+            val alertChannel = NotificationChannel(BATTERY_ALERT_CHANNEL_ID, "Low battery Zik", NotificationManager.IMPORTANCE_HIGH)
+            alertChannel.description = "Alert when the Parrot Zik headset battery is low"
             nm.createNotificationChannel(alertChannel)
         }
     }
@@ -671,13 +671,13 @@ class ZikBluetoothService : Service() {
         )
         val title = when {
             connected && battery != null -> "Parrot Zik 3 — $battery%"
-            connected -> "Parrot Zik 3 — Connecté"
+            connected -> "Parrot Zik 3 — Connected"
             else -> "Parrot Zik 3"
         }
         val body = when {
-            connected && battery != null -> "Batterie : $battery%"
-            connected -> "En connexion..."
-            else -> "En recherche..."
+            connected && battery != null -> "Battery: $battery%"
+            connected -> "Connecting..."
+            else -> "Searching..."
         }
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
@@ -698,9 +698,9 @@ class ZikBluetoothService : Service() {
         if (lastBatteryAlertThreshold == threshold) return  // déjà alerté pour ce seuil
         lastBatteryAlertThreshold = threshold
         val text = if (threshold <= 10)
-            "Batterie très faible ($pct%) — branchez le casque"
+            "Very low battery ($pct%) — plug in the headset"
         else
-            "Batterie faible ($pct%) — pensez à recharger"
+            "Low battery ($pct%) — remember to recharge"
         val pi = PendingIntent.getActivity(
             this, 1,
             Intent(this, MainActivity::class.java).apply { flags = Intent.FLAG_ACTIVITY_SINGLE_TOP },
@@ -777,7 +777,7 @@ class ZikBluetoothService : Service() {
                 output?.flush()
             }
         } catch (t: Throwable) {
-            Log.w(TAG, "sendPacketNow: échec envoi — ${t.message}")
+            Log.w(TAG, "sendPacketNow: send failed — ${t.message}")
         }
     }
 
@@ -859,7 +859,7 @@ class ZikBluetoothService : Service() {
         enqueueApi("/api/audio/delay/get")
         enqueueApi("/api/audio/preset/cancel_producer")
         enqueueApi("/api/system/bt_address/get")
-        Log.i(TAG, "zikStartRequest: 30 commandes initiales enquêuées (clone officiel Parrot)")
+        Log.i(TAG, "zikStartRequest: 30 initial commands queued (official Parrot clone)")
     }
 
     /**
@@ -880,7 +880,7 @@ class ZikBluetoothService : Service() {
         if (thread.isAlive) {
             try { socket.close() } catch (_: Exception) {}
             thread.interrupt()
-            throw IOException("Timeout connexion (${timeoutMs}ms) — casque non répondant")
+            throw IOException("Connection timeout (${timeoutMs}ms) — headset not responding")
         }
         connectException?.let { throw it }
     }
@@ -888,19 +888,19 @@ class ZikBluetoothService : Service() {
     /** Traduit une exception BT en message lisible pour l'UI */
     private fun humanError(e: Exception): String = when {
         e.message?.contains("timeout",          ignoreCase = true) == true -> "Timeout"
-        e.message?.contains("refused",          ignoreCase = true) == true -> "Casque occupé"
+        e.message?.contains("refused",          ignoreCase = true) == true -> "Headset busy"
         e.message?.contains("unable to connect",ignoreCase = true) == true -> "Inaccessible"
-        e.message?.contains("host is down",     ignoreCase = true) == true -> "Casque hors portée"
+        e.message?.contains("host is down",     ignoreCase = true) == true -> "Headset out of range"
         e is IOException -> "Erreur RFCOMM"
         else -> e.javaClass.simpleName
     }
 
     /**
-     * On ne peut pas détecter formellement "connecté à un autre appareil",
+     * We cannot formally detect "connected to another device",
      * mais c'est la cause la plus fréquente quand RFCOMM échoue sans app crash.
      */
     private fun enrichConnectionHint(base: String): String {
-        return "$base. Vérifiez que le casque n'est pas déjà connecté à un autre appareil."
+        return "$base. Make sure the headset is not already connected to another device."
     }
 
     private suspend fun connectLoop() {
@@ -924,12 +924,12 @@ class ZikBluetoothService : Service() {
         val savedMac = prefs.getString("last_device_mac", null)
         if (targetAddress == null && !savedMac.isNullOrEmpty()) {
             targetAddress = savedMac
-            Log.i(TAG, "connectLoop: MAC mémorisé restauré → $savedMac")
-            pushLog("LOOP", "MAC mémorisé restauré: $savedMac")
+            Log.i(TAG, "connectLoop: remembered MAC restored → $savedMac")
+            pushLog("LOOP", "Remembered MAC restored: $savedMac")
         }
-        Log.i(TAG, "connectLoop démarré — filtre 'zik'/'parrot' (insensible casse/format)")
-        pushLog("LOOP", "connectLoop démarré")
-        _searchStatus.tryEmit("Recherche de votre Zik\u2026")
+        Log.i(TAG, "connectLoop started — 'zik'/'parrot' filter (case/format insensitive)")
+        pushLog("LOOP", "connectLoop started")
+        _searchStatus.tryEmit("Searching for your Zik2026")
         var scanStartTime = System.currentTimeMillis()
         while (currentCoroutineContext().isActive) {
             try {
@@ -938,13 +938,13 @@ class ZikBluetoothService : Service() {
                 // appareil seul ; sinon on filtre tous les appareils appairés.
                 val target = targetAddress
                 val zikDevices: List<BluetoothDevice> = if (target != null) {
-                    Log.i(TAG, "Mode ciblé : connexion à $target")
+                    Log.i(TAG, "Targeted mode: connecting to $target")
                     listOf(adapter.getRemoteDevice(target))
                 } else {
                     // Filtre élargi : accepte "Zik" OU "Parrot" dans le nom BT du casque
                     // Guard SecurityException (BLUETOOTH_CONNECT requis Android 12+)
                     val rawBonded = try { adapter.bondedDevices } catch (_: SecurityException) {
-                        Log.w(TAG, "connectLoop: bondedDevices — BLUETOOTH_CONNECT non accordé")
+                        Log.w(TAG, "connectLoop: bondedDevices — BLUETOOTH_CONNECT not granted")
                         null
                     }
                     rawBonded
@@ -959,11 +959,11 @@ class ZikBluetoothService : Service() {
                     val elapsed = System.currentTimeMillis() - scanStartTime
                     if (elapsed >= 10_000) {
                         _searchStatus.tryEmit(
-                            "Aucun Parrot Zik appair\u00e9. Veuillez appairer le casque dans les param\u00e8tres Android."
+                            "No Parrot Zik paired. Please pair the headset in Android settings."
                         )
                         Log.w(TAG, "Aucun casque Zik dans bondedDevices (${elapsed / 1000}s)")
                     } else {
-                        _searchStatus.tryEmit("Recherche de votre Zik\u2026")
+                        _searchStatus.tryEmit("Searching for your Zik2026")
                     }
                     delay(SCAN_RETRY_DELAY_MS)
                     continue
@@ -980,7 +980,7 @@ class ZikBluetoothService : Service() {
                 outer@ for (device in zikDevices) {
                     val displayName = device.name ?: "Parrot Zik"
                     lastDevice = displayName
-                    _searchStatus.tryEmit("Connexion \u00e0 $displayName\u2026")
+                    _searchStatus.tryEmit("Connecting to $displayName2026")
                     Log.i(TAG, "Tentative sur : $displayName (${device.address})")
                     //
                     // Stratégie de connexion RFCOMM (ordre de préférence) :
@@ -1005,7 +1005,7 @@ class ZikBluetoothService : Service() {
                                 return when {
                                     uuidStr.startsWith("REFLECT:") -> {
                                         val channel = uuidStr.removePrefix("REFLECT:").toInt()
-                                        Log.i(TAG, "Fallback réflexion : createRfcommSocket($channel) sur $displayName")
+                                        Log.i(TAG, "Reflection fallback: createRfcommSocket($channel) on $displayName")
                                         @Suppress("DiscouragedPrivateApi")
                                         device.javaClass.getMethod("createRfcommSocket", Int::class.java)
                                             .invoke(device, channel) as BluetoothSocket
@@ -1025,12 +1025,12 @@ class ZikBluetoothService : Service() {
 
                             // --- Tentative 1 (thread dédié, timeout 8s) ---
                             val shortLabel = when {
-                                uuidStr.startsWith("SECURE:")   -> "SPP/sécurisé"
+                                uuidStr.startsWith("SECURE:")   -> "SPP/secure"
                                 uuidStr.startsWith("INSECURE:") -> "SPP/insecure"
                                 else                            -> uuidStr
                             }
                             pushLog("BT", "RFCOMM $displayName [$shortLabel] (1/2)")
-                            _searchStatus.tryEmit("Connexion $displayName — $shortLabel (1/2)")
+                            _searchStatus.tryEmit("Connecting $displayName — $shortLabel (1/2)")
                             val sock1 = makeSocket()
                             s = sock1
                             try {
@@ -1039,12 +1039,12 @@ class ZikBluetoothService : Service() {
                             } catch (e1: Exception) {
                                 val e1msg = e1.javaClass.simpleName + ": " + (e1.message ?: "?")
                                 Log.w(TAG, "Echec t1 [$shortLabel] $displayName : $e1msg — retry 500ms")
-                                _searchStatus.tryEmit("$shortLabel erreur: $e1msg")
+                                _searchStatus.tryEmit("$shortLabel error: $e1msg")
                                 try { sock1.close() } catch (_: Exception) {}
                                 s = null
                                 delay(500)
                                 // --- Tentative 2 avec nouvelle socket ---
-                                _searchStatus.tryEmit("Connexion $displayName — $shortLabel (2/2)")
+                                _searchStatus.tryEmit("Connecting $displayName — $shortLabel (2/2)")
                                 val sock2 = makeSocket()
                                 s = sock2
                                 connectBlocking(sock2, 8_000)
@@ -1063,8 +1063,8 @@ class ZikBluetoothService : Service() {
                             val sessionOpen = byteArrayOf(0x00, 0x03, 0x00)
                             openSock.outputStream.write(sessionOpen)
                             openSock.outputStream.flush()
-                            Log.i(TAG, ">> HANDSHAKE [1/3] : 00 03 00 envoyé")
-                            pushLog("HAND", "[1/3] session open envoyé")
+                            Log.i(TAG, ">> HANDSHAKE [1/3]: 00 03 00 sent")
+                            pushLog("HAND", "[1/3] session open sent")
                             _searchStatus.tryEmit("$displayName — handshake session…")
 
                             // Lire l'écho (max 64 octets, délai 300 ms)
@@ -1079,9 +1079,9 @@ class ZikBluetoothService : Service() {
                                 echoRead >= 3 && echoBuf[0] == 0x00.toByte() && echoBuf[1] == 0x03.toByte() ->
                                     { Log.i(TAG, "HANDSHAKE [2/3] SESSION OK — firmware byte=0x%02X".format(echoBuf[2].toInt() and 0xFF)); pushLog("HAND", "[2/3] SESSION OK") }
                                 echoRead > 0 ->
-                                    { Log.w(TAG, "HANDSHAKE [2/3] écho inattendu ($echoRead B) — ${echoBuf.take(echoRead).joinToString { "0x%02X".format(it) }}, on continue"); pushLog("HAND", "[2/3] écho inattendu ${echoRead}B") }
+                                    { Log.w(TAG, "HANDSHAKE [2/3] unexpected echo ($echoRead B) — ${echoBuf.take(echoRead).joinToString { "0x%02X".format(it) }}, continuing"); pushLog("HAND", "[2/3] unexpected echo ${echoRead}B") }
                                 else ->
-                                    { Log.w(TAG, "HANDSHAKE [2/3] aucune réponse en 300ms — firmware peut-être déjà prêt"); pushLog("HAND", "[2/3] pas de réponse 300ms") }
+                                    { Log.w(TAG, "HANDSHAKE [2/3] no response in 300ms — firmware may already be ready"); pushLog("HAND", "[2/3] no response 300ms") }
                             }
 
                             // Étape 2 : probe bt_address/get — confirme que le firmware répond
@@ -1114,11 +1114,11 @@ class ZikBluetoothService : Service() {
                             if (probeOk) {
                                 Log.i(TAG, "PROBE OK ($probeRead B) : ${probeText.take(100)} — lancement init")
                                 pushLog("HAND", "[3/3] PROBE OK ${probeRead}B")
-                                _searchStatus.tryEmit("$displayName — firmware répondu, init…")
+                                _searchStatus.tryEmit("$displayName — firmware replied, init…")
                             } else {
-                                Log.w(TAG, "PROBE sans réponse (${probeRead}B) — démarrage init quand même")
+                                Log.w(TAG, "PROBE no response (${probeRead}B) — starting init anyway")
                                 pushLog("HAND", "[3/3] probe silencieux ${probeRead}B")
-                                _searchStatus.tryEmit("$displayName — probe silencieux, init en cours…")
+                                _searchStatus.tryEmit("$displayName — silent probe, init in progress…")
                             }
                             // ─────────────────────────────────────────────────────────────────
 
@@ -1127,13 +1127,13 @@ class ZikBluetoothService : Service() {
                             // re-scanner les appareils appairés → connexion immédiate au démarrage.
                             getSharedPreferences("zik_prefs", android.content.Context.MODE_PRIVATE)
                                 .edit().putString("last_device_mac", device.address).apply()
-                            Log.i(TAG, "connectLoop: MAC mémorisé → ${device.address}")
+                            Log.i(TAG, "connectLoop: remembered MAC → ${device.address}")
 
                             targetAddress = null   // connexion réussie → effacer la cible
                             _targetDeviceAddress.tryEmit(null)
                             // Couper tout scan de discovery résiduel — protège le canal RFCOMM
                             try { adapter.cancelDiscovery() } catch (_: Exception) {}
-                            pushLog("✓ OK", "Connecté à $displayName")
+                            pushLog("✓ OK", "Connected to $displayName")
                             _connected.tryEmit(true)
                             _connectedMac.tryEmit(device.address)
                             _searchStatus.tryEmit("")   // efface message UI
@@ -1170,9 +1170,9 @@ class ZikBluetoothService : Service() {
                             try { input?.close()  } catch (_: Exception) {}
                             try { socket?.close() } catch (_: Exception) {}
                             output = null; input = null; socket = null
-                            pushLog("✗ DC", "Déconnecté — nettoyage socket")
+                            pushLog("✗ DC", "Disconnected — cleaning up socket")
                             _connected.tryEmit(false)
-                            _searchStatus.tryEmit("Déconnecté — reconnexion…")
+                            _searchStatus.tryEmit("Disconnected — reconnecting…")
                             try {
                                 val prefs = getSharedPreferences("zik_prefs", Context.MODE_PRIVATE)
                                 val showNotif = prefs.getBoolean("show_battery_notification", false)
@@ -1188,13 +1188,13 @@ class ZikBluetoothService : Service() {
                             break@outer     // quitte les deux boucles for — retour au while
                         } catch (e: Exception) {
                             val shortLabel2 = when {
-                                uuidStr.startsWith("SECURE:")   -> "SPP/sécurisé"
+                                uuidStr.startsWith("SECURE:")   -> "SPP/secure"
                                 uuidStr.startsWith("INSECURE:") -> "SPP/insecure"
                                 else                            -> uuidStr
                             }
                             val errDetail = "${e.javaClass.simpleName}: ${e.message ?: "erreur inconnue"}"
                             val msg = humanError(e)
-                            Log.e("ZikConnect", "✘ Échec [$shortLabel2] $displayName : $errDetail")
+                            Log.e("ZikConnect", "✘ Failed [$shortLabel2] $displayName : $errDetail")
                             pushLog("✗ ERR", "[$shortLabel2] $msg")
                             _searchStatus.tryEmit(enrichConnectionHint("[$shortLabel2] $msg — essai suivant…"))
                             try { s?.close() } catch (_: Exception) {}
@@ -1203,8 +1203,8 @@ class ZikBluetoothService : Service() {
                     } // fin for (uuidStr in uuids)
                 } // fin outer@ for (device in zikDevices)
                 if (!connected) {
-                    val errMsg = enrichConnectionHint("Impossible de joindre $lastDevice. Vérifiez : casque allumé ? Hors portée ?")
-                    Log.w(TAG, "Tous les UUID ont échoué pour $lastDevice")
+                    val errMsg = enrichConnectionHint("Unable to reach $lastDevice. Check: headset on? Out of range?")
+                    Log.w(TAG, "All UUIDs failed for $lastDevice")
                     _searchStatus.tryEmit(errMsg)
                     delay(3_000)   // pause avant nouvelle tentative
                 } else {
@@ -1213,19 +1213,19 @@ class ZikBluetoothService : Service() {
                     delay(1_500)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "connectLoop erreur générale : ${e.message}")
+                Log.e(TAG, "connectLoop general error: ${e.message}")
                 delay(2000)
             }
         }
         } finally {
             connectLoopRunning = false
             if (_connected.value) _targetDeviceAddress.tryEmit(null)
-            Log.i(TAG, "connectLoop terminé — connectLoopRunning remis à false")
+            Log.i(TAG, "connectLoop terminated — connectLoopRunning reset to false")
         }
     }
 
     private fun readLoop() {
-        Log.i(TAG, "readLoop: démarré, écoute du flux entrant")
+        Log.i(TAG, "readLoop: started, listening to incoming stream")
         try {
             val buf = ByteArray(4096)
             var read: Int
@@ -1242,7 +1242,7 @@ class ZikBluetoothService : Service() {
                 if (msgs.isEmpty()) {
                     // Le casque a répondu mais le parseur ne reconnaît pas le format :
                     // possible session-open (type=0x00), ou réponse courte < 7 octets.
-                    Log.w(TAG, "<< AUCUN msg parsé sur ${bytes.size} octets bruts (type=0x%02X)".format(
+                    Log.w(TAG, "<< NO msg parsed on ${bytes.size} raw bytes (type=0x%02X)".format(
                         if (bytes.size >= 3) bytes[2].toInt() and 0xFF else -1
                     ))
                     // Signal session-open : avance aussi la queue sérielle
@@ -1270,7 +1270,7 @@ class ZikBluetoothService : Service() {
                             // Dans ce cas on NE met PAS à jour l'UI — mais on avance quand même
                             // la queue sérielle (responseSignal déjà envoyé ci-dessus).
                             if (text.contains("error=\"true\"")) {
-                                Log.w(TAG, "<< ERREUR FIRMWARE (error=true) — trame ignorée: ${text.take(200)}")
+                                Log.w(TAG, "<< FIRMWARE ERROR (error=true) — frame ignored: ${text.take(200)}")
                                 // Feedback UI si la commande NC a échoué
                                 if (text.contains("noise_control") || text.contains("/api/audio/noise")) {
                                     _ncFirmwareStatus.tryEmit("\u26a0\ufe0f  Mode non support\u00e9 (erreur firmware)")
@@ -1282,7 +1282,7 @@ class ZikBluetoothService : Service() {
                                 text.contains("sound_effect") || text.contains("concert_hall")) {
                                 when {
                                     text.contains("type=\"modified\"")  -> Log.i(TAG, "<< CONFIRMED (modified): ${text.take(120)}")
-                                    text.contains("type=\"unchanged\"") -> Log.i(TAG, "<< UNCHANGED (déjà en place): ${text.take(120)}")
+                                    text.contains("type=\"unchanged\"") -> Log.i(TAG, "<< UNCHANGED (already set): ${text.take(120)}")
                                 }
                             }
                             // ── HANDLER NOTIFY (clone protocole officiel Parrot) ──────────────────
@@ -1312,7 +1312,7 @@ class ZikBluetoothService : Service() {
                             if (pct in 40..60) {
                                 // Zone étrange : niveau mi-plein mais potentielle LED rouge casque.
                                 // Vérification : aucun SET battery n'est envoyé, seul GET.
-                                Log.w(TAG, "DIAG_LED: batterie=${pct}% — aucun threshold envoyé. LED rouge = firmware casque.")
+                                Log.w(TAG, "DIAG_LED: battery=${pct}% — no threshold sent. Red LED = headset firmware.")
                             }
                             lastReceivedMs["battery"] = System.currentTimeMillis()
                             _battery.tryEmit(pct)
@@ -1338,11 +1338,11 @@ class ZikBluetoothService : Service() {
                             val rawValue = Regex("""<noise_control[^>]*\bvalue="(\d+)"""").find(text)?.groupValues?.getOrNull(1) ?: ""
                             if (rawType.isNotEmpty() && rawValue.isNotEmpty()) {
                                 if (!ZikTruthTable.isValidAncResponse(rawType, rawValue)) {
-                                    Log.e(TAG, "FIRMWARE_MISMATCH: noise_control type=\"$rawType\" value=\"$rawValue\" — hors zik_truth_table.json. État UI non mis à jour.")
+                                    Log.e(TAG, "FIRMWARE_MISMATCH: noise_control type=\"$rawType\" value=\"$rawValue\" — outside zik_truth_table.json. UI state not updated.")
                                     return@run  // bloquer l'émission
                                 }
                                 if (!ZikTruthTable.isHexConfirmed(rawType, rawValue)) {
-                                    Log.w(TAG, "FIRMWARE_UNCONFIRMED: noise_control type=\"$rawType\" value=\"$rawValue\" — entrée non confirmée par trace hex (spec seul).")
+                                    Log.w(TAG, "FIRMWARE_UNCONFIRMED: noise_control type=\"$rawType\" value=\"$rawValue\" — entry unconfirmed by hex trace (spec only).")
                                 }
                             }
                             ZikProtocol.parseAncModeFromXml(text)?.let { mode ->
@@ -1364,7 +1364,7 @@ class ZikBluetoothService : Service() {
                                 val enabled = v == "true"
                                 Log.i(TAG, "<< NC_ENABLED confirm firmware: $enabled")
                                 _ancEnabled.tryEmit(enabled)     // ← seul endroit autorisé
-                                val statusLine = if (enabled) "✔  NC activé (firmware)" else "✖  NC désactivé — passif réel"
+                                val statusLine = if (enabled) "✔  NC enabled (firmware)" else "✖  NC disabled — passive mode"
                                 _ncFirmwareStatus.tryEmit(statusLine)
                             }
                         ZikProtocol.parseNoiseReductionDbFromXml(text)?.let { db ->
@@ -1375,7 +1375,7 @@ class ZikBluetoothService : Service() {
                             lastReceivedMs["eq"] = System.currentTimeMillis()
                             // Validation ZikTruthTable : r et theta dans les plages BTSnoop
                             if (!ZikTruthTable.isValidEqCoord(eq.x, eq.y)) {
-                                Log.e(TAG, "FIRMWARE_MISMATCH: thumb_eq r=${eq.x} theta=${eq.y} — hors plage zik_truth_table.json [r:0-99, theta:0-359]. État UI non mis à jour.")
+                                Log.e(TAG, "FIRMWARE_MISMATCH: thumb_eq r=${eq.x} theta=${eq.y} — outside zik_truth_table.json range [r:0-99, theta:0-359]. UI state not updated.")
                             } else if (isEqSuppressed()) {
                             } else {
                                 Log.i(TAG, "<< EQ THUMB: ${eq.toArgString()}")
@@ -1419,7 +1419,7 @@ class ZikBluetoothService : Service() {
                         }
                         // Parse état porté/retiré — format <pi value="1|0"/> et is_worn="true|false"
                         // VERROU SYSTÈME : si le capteur de présence est désactivé,
-                        // les trames "retiré" (worn=false) sont IGNORÉES → la pause média ne se déclenche pas.
+                        // "removed" frames (worn=false) are IGNORED → media pause is not triggered.
                         Regex("""<pi[^>]*\bvalue="(\d)"""").find(text)?.groups?.get(1)?.value?.let { v ->
                             val worn = v == "1"
                             if (worn || _presenceSensor.value == true) {
@@ -1457,7 +1457,7 @@ class ZikBluetoothService : Service() {
                 }
             } // fin while(true)
         } catch (e: Exception) {
-            Log.w(TAG, "readLoop terminé : ${e.javaClass.simpleName} ${e.message}")
+            Log.w(TAG, "readLoop terminated: ${e.javaClass.simpleName} ${e.message}")
         } finally {
             Log.i(TAG, "readLoop finally: fermeture socket")
             _connected.tryEmit(false)
