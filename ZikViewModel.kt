@@ -120,15 +120,15 @@ class ZikViewModel(private val context: Context) : ViewModel() {
                 drop >= 15 && elapsed < 15_000L -> {
                     // Chute brutale : dérive fuel-gauge confirmée
                     _batteryCalibWarning.value =
-                        "Batterie non calibrée — Cycle de charge recommandé"
+                        "Battery not calibrated — Charge cycle recommended"
                     Log.w("ZikBT",
                         "BATT_COHERENCE: $prev% → $newPct% en ${elapsed}ms —" +
-                        " dérive fuel-gauge (AnalogMonitor firmware)")
+                        " fuel-gauge drift (AnalogMonitor firmware)")
                 }
                 newPct >= 95 && (_batteryCalibWarning.value != null) -> {
                     // Charge complète réelle : le fuel-gauge s'est recalibré
                     _batteryCalibWarning.value = null
-                    Log.i("ZikBT", "BATT_COHERENCE: charge complète — alerte réinitialisée")
+                    Log.i("ZikBT", "BATT_COHERENCE: full charge — alert reset")
                 }
             }
         }
@@ -389,15 +389,15 @@ class ZikViewModel(private val context: Context) : ViewModel() {
         when (prefs.getString(ACTIVE_AUDIO_PROFILE_TYPE_KEY, null)) {
             "builtin" -> {
                 val presetName = prefs.getString(ACTIVE_AUDIO_PROFILE_BUILTIN_KEY, null) ?: return
-                Log.i("ZikControl", "[EQ] restauration preset intégré: $presetName")
+                Log.i("ZikControl", "[EQ] restoring built-in preset: $presetName")
                 setEqPreset(presetName, rememberSelection = false)
             }
             "parametric" -> {
                 val presetId = prefs.getLong(ACTIVE_AUDIO_PROFILE_PARAM_ID_KEY, -1L)
                     .takeIf { it >= 0L } ?: return
-                Log.i("ZikControl", "[EQ] restauration preset paramétrique id=$presetId")
+                Log.i("ZikControl", "[EQ] restoring parametric preset id=$presetId")
                 if (!applyParamPreset(presetId, rememberSelection = false)) {
-                    clearRememberedAudioProfile("preset paramétrique introuvable au restore")
+                    clearRememberedAudioProfile("parametric preset not found during restore")
                 }
             }
             "manual" -> {
@@ -492,7 +492,7 @@ class ZikViewModel(private val context: Context) : ViewModel() {
 
     /** Prévisualise l'EQ paramétrique en temps réel pendant la création d'un preset. */
     fun previewParamEq(gains: List<Float>) {
-        clearRememberedAudioProfile("preview paramétrique")
+        clearRememberedAudioProfile("parametric preview")
         _eqEnabled.value = true
         _eqBands.value = gains.map { it.toDouble().coerceIn(-12.0, 12.0) }
         service?.enqueuePriorityPacket(ZikProtocol.packetForParamEq(gains))
@@ -507,11 +507,11 @@ class ZikViewModel(private val context: Context) : ViewModel() {
         concertHallAngle: Int
     ): String? {
         val nm = name.trim().take(35)
-        if (nm.isBlank()) return "Nom requis"
+        if (nm.isBlank()) return "Name required"
         val dummy = ZikProtocol.ThumbEqValues(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
         val current = _userEqPresets.value.toMutableList()
         if (current.any { it.name.equals(nm, ignoreCase = true) }) {
-            return "Un preset avec ce nom existe deja"
+            return "A preset with this name already exists"
         }
         val preset = UserEqPreset(
             id = System.currentTimeMillis(),
@@ -561,12 +561,12 @@ class ZikViewModel(private val context: Context) : ViewModel() {
         concertHallAngle: Int
     ): String? {
         val nm = name.trim().take(35)
-        if (nm.isBlank()) return "Nom requis"
+        if (nm.isBlank()) return "Name required"
         val current = _userEqPresets.value.toMutableList()
         val idx = current.indexOfFirst { it.id == presetId }
-        if (idx < 0) return "Preset introuvable"
+        if (idx < 0) return "Preset not found"
         if (current.any { it.id != presetId && it.name.equals(nm, ignoreCase = true) }) {
-            return "Un preset avec ce nom existe deja"
+            return "A preset with this name already exists"
         }
 
         val prev = current[idx]
@@ -591,12 +591,12 @@ class ZikViewModel(private val context: Context) : ViewModel() {
 
     fun renameParamPreset(presetId: Long, name: String): String? {
         val nm = name.trim().take(35)
-        if (nm.isBlank()) return "Nom requis"
+        if (nm.isBlank()) return "Name required"
         val current = _userEqPresets.value.toMutableList()
         val idx = current.indexOfFirst { it.id == presetId }
-        if (idx < 0) return "Preset introuvable"
+        if (idx < 0) return "Preset not found"
         if (current.any { it.id != presetId && it.name.equals(nm, ignoreCase = true) }) {
-            return "Un preset avec ce nom existe deja"
+            return "A preset with this name already exists"
         }
 
         current[idx] = current[idx].copy(name = nm)
@@ -616,7 +616,7 @@ class ZikViewModel(private val context: Context) : ViewModel() {
         _userEqPresets.value = next
         persistUserEqPresets(next)
         if (activeParamPresetId == presetId) {
-            clearRememberedAudioProfile("suppression preset paramétrique actif")
+            clearRememberedAudioProfile("deleting active parametric preset")
         } else if (_activePreset.value != null && next.none { it.name == _activePreset.value }) {
             _activePreset.value = null
         }
@@ -889,7 +889,7 @@ class ZikViewModel(private val context: Context) : ViewModel() {
         _battery.value = 85
         _eqBands.value = listOf(0.0, 0.0, 0.0, 0.0, 0.0)
         _noiseReductionDb.value = 18
-        _deviceName.value = "Parrot ZIK (Mode Démo)"
+        _deviceName.value = "Parrot ZIK (Demo Mode)"
     }
 
     /** Désactive le mode démo et relance le flux normal de connexion. */
@@ -1027,7 +1027,7 @@ class ZikViewModel(private val context: Context) : ViewModel() {
         ensureRunning()
         service?.startScan() ?: run {
             // Si service pas encore lié, on relancera le scan quand il sera prêt
-            Log.i("ZikControl", "startScan: service non lié — scan différé")
+            Log.i("ZikControl", "startScan: service not bound — scan deferred")
         }
     }
 
@@ -1240,7 +1240,7 @@ class ZikViewModel(private val context: Context) : ViewModel() {
                 }
             }
         } else {
-            clearRememberedAudioProfile("EQ désactivé manuellement")
+            clearRememberedAudioProfile("EQ manually disabled")
             service?.enqueuePriorityPacket(ZikProtocol.packetForEqualizerEnable(false))
         }
         // GET de confirmation en file normale (basse priorité, après la commande)
